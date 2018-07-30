@@ -3,6 +3,9 @@
 #include <Max72xxPanel.h>
 #include <EEPROM.h>
 #include <SoftwareSerial.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 
  
 //Vcc - Vcc
@@ -22,6 +25,8 @@ const int spacer = 1;
 const int width = 5 + spacer; // Ancho de la fuente a 5 pixeles
 
 int addr = 0;
+boolean s = false;
+boolean f = false;
 
 SoftwareSerial BT1(4,2); // RX, TX
  
@@ -51,38 +56,75 @@ void setup() {
  matrix.setRotation(6, 1);    // Posición del display
  matrix.setRotation(7, 1);    // Posición del display
  matrix.setRotation(8, 1);    // Posición del display
+ delete_message();
  
-
 }
 
+String save_message (){
+        String msg = "";
+        for (int i = 0; i < EEPROM.length(); i++) {
+               msg += char(EEPROM.read(i));
+        }
+        return msg;        
+  }
+
+void delete_message(){
+        for (int i = 0; i <=  EEPROM.length(); i++) {
+          EEPROM.write(i, 0);
+        }
+        Serial.println("Se ha borrado la eeprom");
+}
+
+void print_matrix(String cadena){  
+               int n = random(0,1);             
+               for (int i = 0; i < width * cadena.length() + matrix.width() - 1 - spacer; i++) {
+                 matrix.fillScreen(LOW);
+                 int letter = i / width;
+                 int x = (matrix.width() - 1) - i % width;
+                 int y = (matrix.height() - 8) / 2; // Centrar el texto
+                 
+                 while (x + width - spacer >= 0 && letter >= 0) {
+                   if (letter < cadena.length()) {
+                    matrix.drawChar(x, y, cadena[letter], HIGH, LOW, 1);
+                   }
+                   letter--;
+                   x -= width;
+                 }
+                 matrix.write(); // Muestra loscaracteres
+                 delay(wait);
+               }
+}
 
 
 void loop() {
- 
-       if (BT1.available())
-           Serial.write(BT1.read());
        
-       if (Serial.available())
-          {  String S = GetLine();
-             //BT1.print(S);
-             //Serial.println("---> " + S);
-          }
+        while (BT1.available()){  
+              EEPROM.update(addr, BT1.read());
+              addr++;
+              s = true;
+              if(EEPROM.read(EEPROM.length()+1) == 0){
+                f = true;
+              }
+        }
+        while(s == true and f == true ){
+              Serial.println(save_message());                    
+              print_matrix(save_message());
+              if(BT1.available()){
+                s = false;
+                f = false;
+                break;
+               }
+        }    
 
-  
+        
+           
+
+       
+       
+        
 
 }
 
-String GetLine()
-   {   String S = "" ;
-       if (Serial.available())
-          {    char c = Serial.read(); ;
-                while ( c != '\n')            //Hasta que el caracter sea intro
-                  {     S = S + c ;
-                        delay(25) ;
-                        c = Serial.read();
-                  }
-                return( S + '\n') ;
-          }
-   }
+
 
   
