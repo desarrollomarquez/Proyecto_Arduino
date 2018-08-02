@@ -3,9 +3,6 @@
 #include <Max72xxPanel.h>
 #include <EEPROM.h>
 #include <SoftwareSerial.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 
  
 //Vcc - Vcc
@@ -63,7 +60,9 @@ void setup() {
 String save_message (){
         String msg = "";
         for (int i = 0; i < EEPROM.length(); i++) {
+              if(EEPROM.read(i) != 35){
                msg += char(EEPROM.read(i));
+              }
         }
         return msg;        
   }
@@ -100,29 +99,12 @@ void loop() {
        
         while (BT1.available()){  
               EEPROM.update(addr, BT1.read());
-              addr++;
-              s = true;
-              if(EEPROM.read(EEPROM.length()+1) == 0){
-                f = true;
+              if(EEPROM.read(addr) == 35){
+                print_matrix(save_message());
               }
+              addr++;
         }
-        while(s == true and f == true ){
-              Serial.println(save_message());                    
-              print_matrix(save_message());
-              if(BT1.available()){
-                s = false;
-                f = false;
-                break;
-               }
-        }    
-
-        
-           
-
-       
-       
-        
-
+ 
 }
 
 
