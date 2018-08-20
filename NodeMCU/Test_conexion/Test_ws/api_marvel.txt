@@ -1,0 +1,11 @@
+List any domains that can make calls to the Marvel Comics API using your API key here:
+
+https://gateway.marvel.com
+
+Your public key:
+852bd3aedd0c550e2e412b99b70d7653
+
+Your private key:
+d4551335f9fcc730ab37a4c03e1c79ac6f3ffbdc
+
+
