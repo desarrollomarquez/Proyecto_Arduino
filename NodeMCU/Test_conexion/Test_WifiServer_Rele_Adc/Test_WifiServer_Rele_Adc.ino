@@ -20,15 +20,15 @@ Sensor Config
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-#include <DHT.h> //This library you can add via Include Library > Manage Library >
+//#include <DHT.h> //This library you can add via Include Library > Manage Library >
 #include <ESP8266mDNS.h>
 #include <Wire.h>  // This library is already built in to the Arduino IDE
 #include <LiquidCrystal_I2C.h> //This library you can add via Include Library > Manage Library > 
-LiquidCrystal_I2C lcd(0x3F, 16, 2);
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-#define DHTPIN 3         //define as DHTPIN the Pin 3 used to connect the Sensor
-#define DHTTYPE DHT11    //define the sensor used(DHT11)
-DHT dht(DHTPIN, DHTTYPE);//create an instance of DHT
+//#define DHTPIN 3         //define as DHTPIN the Pin 3 used to connect the Sensor
+//#define DHTTYPE DHT11    //define the sensor used(DHT11)
+//DHT dht(DHTPIN, DHTTYPE);//create an instance of DHT
 const char* host = "icaro";
 const char* ssid     = "Marquez Correa";
 const char* password = "Marquez8355196";
@@ -64,6 +64,10 @@ void setup(void)
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+  
+  
+  
+  
   MDNS.begin(host);
   MDNS.addService("http", "tcp", 80);
   Serial.printf("Ready! Open http://%s.local in your browser\n", host);
@@ -97,33 +101,24 @@ void setup(void)
     server.send(200, "application/json", json);
   });
   
+
   server.begin();
   Serial.println("HTTP server started");
-
-   server.handleClient();
-  gettemperatura();
-  lcd.setCursor(0, 0);
-  //String hs="IP: "+String(WiFi.localIP());
-  String ts="Temp: "+String((int)temp_f)+" C ";
-  lcd.setCursor(0, 0);
-  lcd.print(ts);
-  lcd.setCursor(0, 1);
-  //lcd.print(hs);
   
   
 }
  
 void loop(void)
 {  
-   server.handleClient();
+  server.handleClient();
   gettemperatura();
   lcd.setCursor(0, 0);
-  //String hs="IP: "+String(WiFi.localIP());
+  String hs="IP:"+String( WiFi.localIP().toString().c_str());
   String ts="Temp: "+String((int)temp_f)+" C ";
   lcd.setCursor(0, 0);
   lcd.print(ts);
   lcd.setCursor(0, 1);
-  //lcd.print(hs);
+  lcd.print(hs);
 
  
 } 
@@ -149,6 +144,6 @@ void gettemperatura() {
      if(currentMillis - previousMillis >= interval) {
         previousMillis = currentMillis;
         sensorValue = analogRead(A0); //Lectura del ADC 
-        temp_f =  sensorValue * (5 / 1023.0); //escalamos a voltaje             
+        temp_f =  sensorValue * (3.3 / 1023.0); //escalamos a voltaje             
       }
   }
