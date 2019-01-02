@@ -35,12 +35,13 @@ const char* password = "Marquez8355196";
 
 ESP8266WebServer server(80);
 float humidity, temp_f, sensorValue;  // Values read from sensor
+int val;
 String webString="";   
 unsigned long previousMillis = 0;        // will store last temp was read
 const long interval = 2000;              // interval at which to read sensor
  
 void handle_root() {
-  server.send(200, "text/plain", "Welcome to weather server, open /temp, /humidity or /api");
+  server.send(200, "text/plain", "Bienvenido API  server, abrir /temperatura, /rele/0, /rele/1 or /api");
   delay(100);
 }
  
@@ -48,18 +49,25 @@ void setup(void)
 {
   lcd.begin();   // initializing the LCD
   lcd.backlight();
+
+// prepare GPIO14
+  pinMode(14, OUTPUT);
+  digitalWrite(14, 0);
+  
   Serial.begin(115200);
   //dht.begin(); // initialize temperature sensor
   // Connect to WiFi network
   WiFi.begin(ssid, password);
   Serial.print("\n\r \n\rWorking to connect");
+  
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
+  
   Serial.println("");
-  //Serial.println("DHT Weather Reading Server");
+  Serial.println("Reading Server");
   Serial.print("Connected to ");
   Serial.println(ssid);
   Serial.print("IP address: ");
@@ -80,18 +88,19 @@ void setup(void)
   });
 
 
-  /*  
-  server.on("/temp", [](){  
-    gettemperature();       // read sensor
-    webString="Temperature: "+String((int)temp_f)+" Celsius";
+  server.on("/rele/0", [](){  
+    val = 0;
+    webString="Rele Apagado";
     server.send(200, "text/plain", webString);
   });
 
-  server.on("/humidity", [](){ 
-    gettemperature();           // read sensor
-    webString="Humidity: "+String((int)humidity)+"%";
-    server.send(200, "text/plain", webString); 
-  });*/
+  
+  server.on("/rele/1", [](){  
+    val = 1;
+    webString="Rele Encendido";
+    server.send(200, "text/plain", webString);
+  });
+  
 
  //Rest API for sensor data
   server.on("/api", [](){  
@@ -112,6 +121,7 @@ void loop(void)
 {  
   server.handleClient();
   gettemperatura();
+  digitalWrite(14, val);
   lcd.setCursor(0, 0);
   String hs="IP:"+String( WiFi.localIP().toString().c_str());
   String ts="Temp: "+String((int)temp_f)+" C ";
@@ -123,21 +133,6 @@ void loop(void)
  
 } 
 
-/*
-void gettemperature() {
-  unsigned long currentMillis = millis();
- if(currentMillis - previousMillis >= interval) {
-    previousMillis = currentMillis;   
-    humidity = dht.readHumidity();          // Read humidity (percent)
-    temp_f = dht.readTemperature(false);     // Read temperature as Celsius
-    if (isnan(humidity) || isnan(temp_f)) {
-      humidity=0;
-      temp_f=0;
-      Serial.println("Failed to read from DHT sensor!");
-      return;
-    }
-  }
-}*/
 
 void gettemperatura() {
        unsigned long currentMillis = millis();
@@ -147,3 +142,4 @@ void gettemperatura() {
         temp_f =  sensorValue * (3.3 / 1023.0); //escalamos a voltaje             
       }
   }
+
