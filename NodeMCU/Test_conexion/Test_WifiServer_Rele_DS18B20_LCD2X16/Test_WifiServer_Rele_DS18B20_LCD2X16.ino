@@ -1,5 +1,5 @@
 /* 
-DHT Weather server with display integrated for NodeMCU esp8266 and 1602A LCD
+NodeMCU esp8266 and 1602A LCD
 
 Please connect 1602A using I2C backpack.
 If you feel display is not showing anything, please take a screwdriver and update contrast 
@@ -20,15 +20,18 @@ Sensor Config
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+//#include <DHT.h> //This library you can add via Include Library > Manage Library >
 #include <ESP8266mDNS.h>
 #include <Wire.h>  // This library is already built in to the Arduino IDE
-#include <LiquidCrystal_I2C.h> //This library you can add via Include Library > Manage Library > 
+#include <LiquidCrystal_I2C.h> //This library you can add via Include Library > Manage Library >
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-
+//#define DHTPIN 3         //define as DHTPIN the Pin 3 used to connect the Sensor
+//#define DHTTYPE DHT11    //define the sensor used(DHT11)
+//DHT dht(DHTPIN, DHTTYPE);//create an instance of DHT
 const char* host = "icaro";
 const char* ssid     = "Marquez Correa";
 const char* password = "Marquez8355196";
@@ -39,6 +42,13 @@ int val;
 String webString="";   
 unsigned long previousMillis = 0;        // will store last temp was read
 const long interval = 2000;              // interval at which to read sensor
+// Pin donde se conecta el bus 1-Wire
+const int pinDatosDQ = 2 ;
+
+// Instancia a las clases OneWire y DallasTemperature
+OneWire oneWireObjeto(pinDatosDQ);
+DallasTemperature sensorDS18B20(&oneWireObjeto);
+
  
 void handle_root() {
   server.send(200, "text/plain", "Bienvenido API  server, abrir /temperatura, /rele/0, /rele/1 or /api");
@@ -54,8 +64,10 @@ void setup(void)
   pinMode(14, OUTPUT);
   digitalWrite(14, 0);
   
+  sensorDS18B20.begin(); // initialize temperature sensor
+  
   Serial.begin(115200);
-  //dht.begin(); // initialize temperature sensor
+  
   // Connect to WiFi network
   WiFi.begin(ssid, password);
   Serial.print("\n\r \n\rWorking to connect");
@@ -138,8 +150,8 @@ void gettemperatura() {
        unsigned long currentMillis = millis();
      if(currentMillis - previousMillis >= interval) {
         previousMillis = currentMillis;
-        sensorValue = analogRead(A0); //Lectura del ADC 
-        temp_f =  sensorValue * (3.3 / 1023.0); //escalamos a voltaje             
+        sensorDS18B20.requestTemperatures();
+        temp_f =  sensorDS18B20.getTempCByIndex(0);
       }
   }
 
