@@ -20,7 +20,6 @@ Sensor Config
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-//#include <DHT.h> //This library you can add via Include Library > Manage Library >
 #include <ESP8266mDNS.h>
 #include <Wire.h>  // This library is already built in to the Arduino IDE
 #include <LiquidCrystal_I2C.h> //This library you can add via Include Library > Manage Library >
@@ -29,9 +28,6 @@ Sensor Config
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-//#define DHTPIN 3         //define as DHTPIN the Pin 3 used to connect the Sensor
-//#define DHTTYPE DHT11    //define the sensor used(DHT11)
-//DHT dht(DHTPIN, DHTTYPE);//create an instance of DHT
 const char* host = "icaro";
 const char* ssid     = "Marquez Correa";
 const char* password = "Marquez8355196";
