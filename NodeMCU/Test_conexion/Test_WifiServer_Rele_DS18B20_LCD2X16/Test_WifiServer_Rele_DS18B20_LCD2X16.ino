@@ -1,3 +1,4 @@
+
 /* 
 NodeMCU esp8266 and 1602A LCD
 
@@ -59,6 +60,9 @@ void setup(void)
 // prepare GPIO14
   pinMode(14, OUTPUT);
   digitalWrite(14, 0);
+  
+// prepare GPIO15 - PWM
+  pinMode(15, OUTPUT);
   
   sensorDS18B20.begin(); // initialize temperature sensor
   
@@ -130,6 +134,7 @@ void loop(void)
   server.handleClient();
   gettemperatura();
   digitalWrite(14, val);
+  pushPWM();
   lcd.setCursor(0, 0);
   String hs="IP:"+String( WiFi.localIP().toString().c_str());
   String ts="Temp: "+String((int)temp_f)+" C ";
@@ -149,5 +154,22 @@ void gettemperatura() {
         sensorDS18B20.requestTemperatures();
         temp_f =  sensorDS18B20.getTempCByIndex(0);
       }
+  }
+
+
+void pushPWM() {
+    
+    for (int PWM_duty = 0; PWM_duty < 1023; PWM_duty++) 
+    {
+      analogWrite(15, PWM_duty);
+      delay(1);
+    }
+    delay(500);
+    for (int PWM_duty = 1023; PWM_duty >= 0; PWM_duty--) 
+    {
+      analogWrite(15, PWM_duty);
+      delay(1);
+    }
+    delay(500);
   }
 
