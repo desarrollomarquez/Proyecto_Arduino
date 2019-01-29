@@ -26,6 +26,8 @@ Sensor Config
 #include <LiquidCrystal_I2C.h> //This library you can add via Include Library > Manage Library >
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <Servo.h>
+
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
@@ -45,7 +47,7 @@ const int pinDatosDQ = 2 ;
 // Instancia a las clases OneWire y DallasTemperature
 OneWire oneWireObjeto(pinDatosDQ);
 DallasTemperature sensorDS18B20(&oneWireObjeto);
-
+Servo compuerta;
  
 void handle_root() {
   server.send(200, "text/plain", "Bienvenido API  server, abrir /temperatura, /rele/0, /rele/1 or /api");
@@ -63,6 +65,8 @@ void setup(void)
   
 // prepare GPIO15 - PWM
   pinMode(15, OUTPUT);
+
+  compuerta.attach(13);  // servo en el pin GPIO13
   
   sensorDS18B20.begin(); // initialize temperature sensor
   
@@ -135,6 +139,7 @@ void loop(void)
   gettemperatura();
   digitalWrite(14, val);
   pushPWM();
+  compuertaServo();
   lcd.setCursor(0, 0);
   String hs="IP:"+String( WiFi.localIP().toString().c_str());
   String ts="Temp: "+String((int)temp_f)+" C ";
@@ -171,5 +176,22 @@ void pushPWM() {
       delay(1);
     }
     delay(500);
+  }
+
+void compuertaServo(){
+    
+     for (int angulo = 0; angulo <= 180; angulo += 1) 
+      { 
+        compuerta.write(angulo);              
+        delay(10); 
+      }
+  
+      for (int angulo = 180; angulo >= 0; angulo -= 1) 
+      { 
+        compuerta.write(angulo);  
+        delay(10);  
+      }
+  
+  
   }
 
