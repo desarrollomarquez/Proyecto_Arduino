@@ -43,6 +43,7 @@ unsigned long previousMillis = 0;        // will store last temp was read
 const long interval = 2000;              // interval at which to read sensor
 // Pin donde se conecta el bus 1-Wire
 const int pinDatosDQ = 2 ;
+bool s=false;
 
 // Instancia a las clases OneWire y DallasTemperature
 OneWire oneWireObjeto(pinDatosDQ);
@@ -66,7 +67,7 @@ void setup(void)
 // prepare GPIO15 - PWM
   pinMode(15, OUTPUT);
 
-  compuerta.attach(13);  // servo en el pin GPIO13
+  compuerta.attach(12);  // servo en el pin GPIO13
   
   sensorDS18B20.begin(); // initialize temperature sensor
   
@@ -104,16 +105,26 @@ void setup(void)
   });
 
 
-  server.on("/rele/0", [](){  
-    val = 0;
-    webString="Rele Apagado";
+  server.on("/close", [](){  
+      for (int angulo = 180; angulo >= 0; angulo -= 1) 
+      { 
+        compuerta.write(angulo);  
+        delay(10);  
+      }
+      delay(500);
+    webString="Compuerta Cerrada";
     server.send(200, "text/plain", webString);
   });
 
   
-  server.on("/rele/1", [](){  
-    val = 1;
-    webString="Rele Encendido";
+  server.on("/open", [](){  
+      for (int angulo = 0; angulo <= 180; angulo += 1) 
+      { 
+        compuerta.write(angulo);              
+        delay(10); 
+      }
+      delay(500);
+    webString="Compuerta Abierta";
     server.send(200, "text/plain", webString);
   });
   
@@ -137,9 +148,9 @@ void loop(void)
 {  
   server.handleClient();
   gettemperatura();
-  digitalWrite(14, val);
+  //digitalWrite(14, val);
+  
   pushPWM();
-  compuertaServo();
   lcd.setCursor(0, 0);
   String hs="IP:"+String( WiFi.localIP().toString().c_str());
   String ts="Temp: "+String((int)temp_f)+" C ";
@@ -178,20 +189,4 @@ void pushPWM() {
     delay(500);
   }
 
-void compuertaServo(){
-    
-     for (int angulo = 0; angulo <= 180; angulo += 1) 
-      { 
-        compuerta.write(angulo);              
-        delay(10); 
-      }
-  
-      for (int angulo = 180; angulo >= 0; angulo -= 1) 
-      { 
-        compuerta.write(angulo);  
-        delay(10);  
-      }
-  
-  
-  }
 
