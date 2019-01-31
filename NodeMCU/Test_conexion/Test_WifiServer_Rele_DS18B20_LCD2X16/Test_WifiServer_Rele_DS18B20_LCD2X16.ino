@@ -105,30 +105,20 @@ void setup(void)
   });
 
 
-  server.on("/close", [](){  
-      for (int angulo = 180; angulo >= 0; angulo -= 1) 
-      { 
-        compuerta.write(angulo);  
-        delay(10);  
-      }
-      delay(500);
+  server.on("/close", [](){
+    val= 2;
     webString="Compuerta Cerrada";
     server.send(200, "text/plain", webString);
   });
 
   
-  server.on("/open", [](){  
-      for (int angulo = 0; angulo <= 180; angulo += 1) 
-      { 
-        compuerta.write(angulo);              
-        delay(10); 
-      }
-      delay(500);
+  server.on("/open", [](){
+    val = 1;        
     webString="Compuerta Abierta";
     server.send(200, "text/plain", webString);
   });
-  
 
+ 
  //Rest API for sensor data
   server.on("/api", [](){  
     gettemperatura();           // read sensor
@@ -149,7 +139,25 @@ void loop(void)
   server.handleClient();
   gettemperatura();
   //digitalWrite(14, val);
-  
+  if(val == 1){
+    for (int angulo = 0; angulo <= 180; angulo += 1) 
+      { 
+        compuerta.write(angulo);              
+        delay(10); 
+      }
+      delay(500);
+    val=0;
+   }
+   
+   if(val==2){
+    for (int angulo = 180; angulo >= 0; angulo -= 1) 
+      { 
+        compuerta.write(angulo);  
+        delay(10);  
+      }
+      delay(500);
+     val=0;
+    }
   pushPWM();
   lcd.setCursor(0, 0);
   String hs="IP:"+String( WiFi.localIP().toString().c_str());
