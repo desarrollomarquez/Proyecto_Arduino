@@ -67,7 +67,6 @@ void setup(void)
 // prepare GPIO15 - PWM
   pinMode(15, OUTPUT);
 
-  compuerta.attach(12);  // servo en el pin GPIO13
   
   sensorDS18B20.begin(); // initialize temperature sensor
   
@@ -105,18 +104,19 @@ void setup(void)
   });
 
 
-  server.on("/close", [](){
-    val= 2;
-    webString="Compuerta Cerrada";
+   server.on("/rele/0", [](){  
+    val = -180;
+    webString="Rele Apagado";
     server.send(200, "text/plain", webString);
   });
 
   
-  server.on("/open", [](){
-    val = 1;        
-    webString="Compuerta Abierta";
+  server.on("/rele/1", [](){  
+    val = 180;
+    webString="Rele Encendido";
     server.send(200, "text/plain", webString);
   });
+  
 
  
  //Rest API for sensor data
@@ -139,25 +139,6 @@ void loop(void)
   server.handleClient();
   gettemperatura();
   //digitalWrite(14, val);
-  if(val == 1){
-    for (int angulo = 0; angulo <= 180; angulo += 1) 
-      { 
-        compuerta.write(angulo);              
-        delay(10); 
-      }
-      delay(500);
-    val=0;
-   }
-   
-   if(val==2){
-    for (int angulo = 180; angulo >= 0; angulo -= 1) 
-      { 
-        compuerta.write(angulo);  
-        delay(10);  
-      }
-      delay(500);
-     val=0;
-    }
   pushPWM();
   lcd.setCursor(0, 0);
   String hs="IP:"+String( WiFi.localIP().toString().c_str());
@@ -180,6 +161,18 @@ void gettemperatura() {
       }
   }
 
+void compuertaServo (float angulo){
+ if(angulo = 90){
+   for (int angulo = 0; angulo <= 180; angulo += 1) 
+    { 
+      digitalWrite(12, val);
+    }
+  }
+
+  if(angulo = 90){
+  
+ 
+}
 
 void pushPWM() {
     
