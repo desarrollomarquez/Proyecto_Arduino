@@ -104,16 +104,16 @@ void setup(void)
   });
 
 
-   server.on("/rele/0", [](){  
-    val = -180;
-    webString="Rele Apagado";
+   server.on("/close", [](){  
+    compuertaServoClose();
+    webString="Compuerta Cerrada";
     server.send(200, "text/plain", webString);
   });
 
   
-  server.on("/rele/1", [](){  
-    val = 180;
-    webString="Rele Encendido";
+  server.on("/open", [](){  
+    compuertaServoOpen();
+    webString="Compuerta Abierta";
     server.send(200, "text/plain", webString);
   });
   
@@ -161,18 +161,24 @@ void gettemperatura() {
       }
   }
 
-void compuertaServo (float angulo){
- if(angulo = 90){
+void compuertaServoOpen() {
+   compuerta.attach(12);
    for (int angulo = 0; angulo <= 180; angulo += 1) 
     { 
-      digitalWrite(12, val);
+      compuerta.write(angulo);
     }
-  }
-
-  if(angulo = 90){
-  
- 
+   compuerta.detach();
 }
+
+void compuertaServoClose() {
+   compuerta.attach(12);
+   for (int angulo = 180; angulo >= 0; angulo -= 1) 
+    { 
+      compuerta.write(angulo);
+    }
+   compuerta.detach();
+}
+
 
 void pushPWM() {
     
