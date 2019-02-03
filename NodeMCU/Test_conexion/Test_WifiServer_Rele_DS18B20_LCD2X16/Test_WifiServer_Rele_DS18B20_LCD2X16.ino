@@ -26,10 +26,14 @@ Sensor Config
 #include <LiquidCrystal_I2C.h> //This library you can add via Include Library > Manage Library >
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <Servo.h>
-
+#include <Stepper.h>
+// Esto es el número de pasos en un minuto
+#define STEPS 200 
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+// Constructor, pasamos STEPS y los pines donde tengamos conectado el motor
+Stepper stepper(STEPS, 2, 14, 12, 13);
 
 const char* host = "icaro";
 const char* ssid     = "Marquez Correa";
@@ -42,13 +46,13 @@ String webString="";
 unsigned long previousMillis = 0;        // will store last temp was read
 const long interval = 2000;              // interval at which to read sensor
 // Pin donde se conecta el bus 1-Wire
-const int pinDatosDQ = 2 ;
+const int pinDatosDQ = 0 ;
 bool s=false;
 
 // Instancia a las clases OneWire y DallasTemperature
 OneWire oneWireObjeto(pinDatosDQ);
 DallasTemperature sensorDS18B20(&oneWireObjeto);
-Servo compuerta;
+
  
 void handle_root() {
   server.send(200, "text/plain", "Bienvenido API  server, abrir /temperatura, /rele/0, /rele/1 or /api");
@@ -59,14 +63,10 @@ void setup(void)
 {
   lcd.begin();   // initializing the LCD
   lcd.backlight();
-
-// prepare GPIO14
-  pinMode(14, OUTPUT);
-  digitalWrite(14, 0);
-  
-// prepare GPIO15 - PWM
+  // prepare stepper
+  stepper.setSpeed(100);
+  // prepare GPIO15 - PWM
   pinMode(15, OUTPUT);
-
   
   sensorDS18B20.begin(); // initialize temperature sensor
   
@@ -105,14 +105,14 @@ void setup(void)
 
 
    server.on("/close", [](){  
-    compuertaServoClose();
+    compuertaStepClose();
     webString="Compuerta Cerrada";
     server.send(200, "text/plain", webString);
   });
 
   
   server.on("/open", [](){  
-    compuertaServoOpen();
+    compuertaStepOpen();
     webString="Compuerta Abierta";
     server.send(200, "text/plain", webString);
   });
@@ -161,22 +161,18 @@ void gettemperatura() {
       }
   }
 
-void compuertaServoOpen() {
-   compuerta.attach(12);
-   for (int angulo = 0; angulo <= 180; angulo += 1) 
-    { 
-      compuerta.write(angulo);
-    }
-   compuerta.detach();
+void compuertaStepOpen() {
+  for (int x=0; x< 8; x++) {
+    stepper.step(STEPS);
+    delay(500);
+  }
 }
 
-void compuertaServoClose() {
-   compuerta.attach(12);
-   for (int angulo = 180; angulo >= 0; angulo -= 1) 
-    { 
-      compuerta.write(angulo);
-    }
-   compuerta.detach();
+void compuertaStepClose() {
+   for (int x=0; x< 8; x++) {
+    stepper.step(-STEPS);
+    delay(500);
+  }
 }
 
 
