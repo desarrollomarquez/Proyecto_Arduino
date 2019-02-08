@@ -28,13 +28,13 @@ Sensor Config
 #include <DallasTemperature.h>
 #include <Stepper.h>
 // Esto es el número de pasos en un minuto
-#define STEPS 200 
 
-LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+
 
 // Constructor, pasamos STEPS y los pines donde tengamos conectado el motor
-Stepper stepper(STEPS, 2, 14, 12, 13);
-
+Stepper stepper(200, 2, 14, 12, 13);
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 const char* host = "icaro";
 const char* ssid     = "Marquez Correa";
 const char* password = "Marquez8355196";
@@ -55,7 +55,7 @@ DallasTemperature sensorDS18B20(&oneWireObjeto);
 
  
 void handle_root() {
-  server.send(200, "text/plain", "Bienvenido API  server, abrir /temperatura, /rele/0, /rele/1 or /api");
+  server.send(200, "text/plain", "Bienvenido API  server, abrir /temperatura, /close, /open or /api");
   delay(100);
 }
  
@@ -104,7 +104,7 @@ void setup(void)
   });
 
 
-   server.on("/close", [](){  
+   server.on("/close", [](){
     compuertaStepClose();
     webString="Compuerta Cerrada";
     server.send(200, "text/plain", webString);
@@ -163,14 +163,14 @@ void gettemperatura() {
 
 void compuertaStepOpen() {
   for (int x=0; x< 8; x++) {
-    stepper.step(STEPS);
+    stepper.step(200);
     delay(500);
   }
 }
 
 void compuertaStepClose() {
    for (int x=0; x< 8; x++) {
-    stepper.step(-STEPS);
+    stepper.step(-200);
     delay(500);
   }
 }
