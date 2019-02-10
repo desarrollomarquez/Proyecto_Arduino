@@ -26,15 +26,9 @@ Sensor Config
 #include <LiquidCrystal_I2C.h> //This library you can add via Include Library > Manage Library >
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <Stepper.h>
-// Esto es el número de pasos en un minuto
 
-
-
-
-// Constructor, pasamos STEPS y los pines donde tengamos conectado el motor
-Stepper stepper(200, 2, 14, 12, 13);
 LiquidCrystal_I2C lcd(0x27, 16, 2);
+
 const char* host = "icaro";
 const char* ssid     = "Marquez Correa";
 const char* password = "Marquez8355196";
@@ -46,7 +40,7 @@ String webString="";
 unsigned long previousMillis = 0;        // will store last temp was read
 const long interval = 2000;              // interval at which to read sensor
 // Pin donde se conecta el bus 1-Wire
-const int pinDatosDQ = 0 ;
+const int pinDatosDQ = 2 ;
 bool s=false;
 
 // Instancia a las clases OneWire y DallasTemperature
@@ -63,16 +57,18 @@ void setup(void)
 {
   lcd.begin();   // initializing the LCD
   lcd.backlight();
-  // prepare stepper
-  stepper.setSpeed(100);
-  // prepare GPIO15 - PWM
-  pinMode(15, OUTPUT);
+  
+
+  
+  // prepare GPIO16 - PWM
+  pinMode(16, OUTPUT);
   
   sensorDS18B20.begin(); // initialize temperature sensor
   
   Serial.begin(115200);
   
-  // Connect to WiFi network
+  // Connect to WiFi networkRegístrese hoy mismo 
+
   WiFi.begin(ssid, password);
   Serial.print("\n\r \n\rWorking to connect");
   
@@ -104,16 +100,11 @@ void setup(void)
   });
 
 
-   server.on("/close", [](){
-    compuertaStepClose();
-    webString="Compuerta Cerrada";
-    server.send(200, "text/plain", webString);
-  });
-
-  
+ 
   server.on("/open", [](){  
-    compuertaStepOpen();
-    webString="Compuerta Abierta";
+    digitalWrite(13, LOW);
+    delay(4000);
+    webString="Compuerta Activada";
     server.send(200, "text/plain", webString);
   });
   
@@ -138,8 +129,8 @@ void loop(void)
 {  
   server.handleClient();
   gettemperatura();
-  //digitalWrite(14, val);
   pushPWM();
+  digitalWrite(13, HIGH);
   lcd.setCursor(0, 0);
   String hs="IP:"+String( WiFi.localIP().toString().c_str());
   String ts="Temp: "+String((int)temp_f)+" C ";
@@ -161,19 +152,6 @@ void gettemperatura() {
       }
   }
 
-void compuertaStepOpen() {
-  for (int x=0; x< 8; x++) {
-    stepper.step(200);
-    delay(500);
-  }
-}
-
-void compuertaStepClose() {
-   for (int x=0; x< 8; x++) {
-    stepper.step(-200);
-    delay(500);
-  }
-}
 
 
 void pushPWM() {
