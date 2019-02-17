@@ -50,7 +50,8 @@ DallasTemperature sensorDS18B20(&oneWireObjeto);
 
  
 void handle_root() {
-  server.send(200, "text/plain", "Bienvenido API  server, abrir /temperatura, /close, /open or /api");
+  webString="Bienvenido API  server, abrir /temperatura, /close, /open or /api";
+  pushMsg(webString);
   delay(100);
 }
  
@@ -89,7 +90,7 @@ void setup(void)
   
   
   
-  
+  //Rest API
   MDNS.begin(host);
   MDNS.addService("http", "tcp", 80);
   Serial.printf("Ready! Open http://%s.local in your browser\n", host);
@@ -98,29 +99,24 @@ void setup(void)
   server.on("/temperatura", [](){  
     gettemperatura();       // read sensor
     webString="Temperatura: "+String((int)temp_f)+" Grados";
-    server.send(200, "text/plain", webString);
+    pushMsg(webString);
   });
-
 
  
   server.on("/open", [](){  
-    val = 0;    
-    webString="Compuerta Activada";
-    server.send(200, "text/plain", webString);
+    val = 0;
+    webString="Compuerta Abierta: "+String((int)val);
+    pushMsg(webString);
   });
 
   
-
- 
- //Rest API for sensor data
   server.on("/api", [](){  
-    gettemperatura();           // read sensor
+    gettemperatura(); // read sensor
     String json="{\"temperatura\":"+String((int)temp_f)+"}";
     Serial.println(json);
-    server.send(200, "application/json", json);
+    pushMsg(json);
   });
   
-
   server.begin();
   Serial.println("HTTP server started");
   
@@ -130,10 +126,11 @@ void setup(void)
 void loop(void)
 {  
   server.handleClient();
-  gettemperatura();
-  pushPWM();
-  pushOpen();
+  gettemperatura(); 
   pushLCD();
+  pushOpen();
+  pushPWM();
+  
  
 } 
 
@@ -157,8 +154,7 @@ void gettemperatura() {
       }
 }
 
-void pushOpen(){
-   
+void pushOpen(){  
       if(val == 0){
         digitalWrite(13, val);    
         delay(tiempo_apertura);
@@ -166,7 +162,13 @@ void pushOpen(){
       }
       else{
        digitalWrite(13, val); 
+       webString="Compuerta Cerrada: "+String((int)val);
+       pushMsg(webString);
       }
+}
+
+void pushMsg(String json){
+    server.send(200, "text/plain", json);
 }
 
 void pushPWM() {
