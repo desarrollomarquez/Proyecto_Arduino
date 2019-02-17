@@ -34,23 +34,27 @@ const char* ssid     = "Marquez Correa";
 const char* password = "Marquez8355196";
 
 ESP8266WebServer server(80);
-float humidity, temp_f, sensorValue;  // Values read from sensor
+float temp_hot, temp_cold;  // Values read from sensor
 int val = 1;
 int tiempo_apertura = 3000;
-String webString="";   
+String webString="";
+String lcdString="";    
 unsigned long previousMillis = 0;        // will store last temp was read
 const long interval = 2000;              // interval at which to read sensor
 // Pin donde se conecta el bus 1-Wire
-const int pinDatosDQ = 2 ;
+const int pinDatosDQHot  = 0;
+const int pinDatosDQCold = 2;
 bool s=false;
 
 // Instancia a las clases OneWire y DallasTemperature
-OneWire oneWireObjeto(pinDatosDQ);
-DallasTemperature sensorDS18B20(&oneWireObjeto);
+OneWire oneWireObjetoHot(pinDatosDQHot);
+OneWire oneWireObjetoCold(pinDatosDQCold);
+DallasTemperature sensorDS18B20Hot(&oneWireObjetoHot);
+DallasTemperature sensorDS18B20Cold(&oneWireObjetoCold);
 
  
 void handle_root() {
-  webString="Bienvenido API  server, abrir /temperatura, /close, /open or /api";
+  webString="Bienvenido API REST  server: Metodos  /open -> Abrir Compuerta; /temperaturas -> Mostrar Temperaturas Hot y Cold";
   pushMsg(webString);
   delay(100);
 }
@@ -59,14 +63,13 @@ void setup(void)
 {
   lcd.begin();   // initializing the LCD
   lcd.backlight();
-  
-
-  
+    
   // prepare GPIO16 - PWM
   pinMode(16, OUTPUT);
   pinMode(13, OUTPUT);
   
-  sensorDS18B20.begin(); // initialize temperature sensor
+  sensorDS18B20Hot.begin(); // initialize temperature sensor
+  sensorDS18B20Cold.begin(); 
   
   Serial.begin(115200);
   
@@ -96,23 +99,23 @@ void setup(void)
   Serial.printf("Ready! Open http://%s.local in your browser\n", host);
   server.on("/", handle_root);
   
-  server.on("/temperatura", [](){  
+  server.on("/temperaturas", [](){  
     gettemperatura();       // read sensor
-    webString="Temperatura: "+String((int)temp_f)+" Grados";
+    webString="Temperatura_Hot: "+String((int)temp_hot)+" Grados"+"Temperatura_Cold: "+String((int)temp_cold)+" Grados";
     pushMsg(webString);
   });
 
  
   server.on("/open", [](){  
     val = 0;
-    webString="Compuerta Abierta: "+String((int)val);
+    webString="Compuerta Open: "+String((int)val);
     pushMsg(webString);
   });
 
   
   server.on("/api", [](){  
     gettemperatura(); // read sensor
-    String json="{\"temperatura\":"+String((int)temp_f)+"}";
+    String json="{\"temperatura_hot\":"+String((int)temp_hot)+"}, {\"temperatura_cold\":"+String((int)temp_cold)+"}";
     Serial.println(json);
     pushMsg(json);
   });
@@ -126,8 +129,7 @@ void setup(void)
 void loop(void)
 {  
   server.handleClient();
-  gettemperatura(); 
-  pushLCD();
+  gettemperatura();
   pushOpen();
   pushPWM();
   
@@ -135,12 +137,11 @@ void loop(void)
 } 
 
 
-void pushLCD(){
+void pushLCD(String msg){
       lcd.setCursor(0, 0);
       String hs="IP:"+String( WiFi.localIP().toString().c_str());
-      String ts="Temp: "+String((int)temp_f)+" C ";
       lcd.setCursor(0, 0);
-      lcd.print(ts);
+      lcd.print(msg);
       lcd.setCursor(0, 1);
       lcd.print(hs);  
 }
@@ -149,9 +150,13 @@ void gettemperatura() {
      unsigned long currentMillis = millis();
      if(currentMillis - previousMillis >= interval) {
         previousMillis = currentMillis;
-        sensorDS18B20.requestTemperatures();
-        temp_f =  sensorDS18B20.getTempCByIndex(0);
+        sensorDS18B20Hot.requestTemperatures();
+        temp_hot =  sensorDS18B20Hot.getTempCByIndex(0);
+        sensorDS18B20Cold.requestTemperatures();
+        temp_cold =  sensorDS18B20Cold.getTempCByIndex(0);
       }
+      lcdString ="Hot:"+String((int)temp_hot)+"C"+" Cold:"+String((int)temp_cold)+"C";
+      pushLCD(lcdString);
 }
 
 void pushOpen(){  
@@ -159,10 +164,12 @@ void pushOpen(){
         digitalWrite(13, val);    
         delay(tiempo_apertura);
         val = 1;
+        pushLCD("Compuerta Open");
+        
       }
       else{
        digitalWrite(13, val); 
-       webString="Compuerta Cerrada: "+String((int)val);
+       webString="Compuerta Close: "+String((int)val);
        pushMsg(webString);
       }
 }
