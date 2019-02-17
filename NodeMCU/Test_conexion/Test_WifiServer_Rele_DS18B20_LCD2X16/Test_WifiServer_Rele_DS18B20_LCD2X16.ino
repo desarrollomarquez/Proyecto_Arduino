@@ -35,7 +35,8 @@ const char* password = "Marquez8355196";
 
 ESP8266WebServer server(80);
 float humidity, temp_f, sensorValue;  // Values read from sensor
-int val;
+int val = 1;
+int tiempo_apertura = 3000;
 String webString="";   
 unsigned long previousMillis = 0;        // will store last temp was read
 const long interval = 2000;              // interval at which to read sensor
@@ -62,6 +63,7 @@ void setup(void)
   
   // prepare GPIO16 - PWM
   pinMode(16, OUTPUT);
+  pinMode(13, OUTPUT);
   
   sensorDS18B20.begin(); // initialize temperature sensor
   
@@ -102,11 +104,11 @@ void setup(void)
 
  
   server.on("/open", [](){  
-    digitalWrite(13, LOW);
-    delay(4000);
+    val = 0;    
     webString="Compuerta Activada";
     server.send(200, "text/plain", webString);
   });
+
   
 
  
@@ -130,29 +132,42 @@ void loop(void)
   server.handleClient();
   gettemperatura();
   pushPWM();
-  digitalWrite(13, HIGH);
-  lcd.setCursor(0, 0);
-  String hs="IP:"+String( WiFi.localIP().toString().c_str());
-  String ts="Temp: "+String((int)temp_f)+" C ";
-  lcd.setCursor(0, 0);
-  lcd.print(ts);
-  lcd.setCursor(0, 1);
-  lcd.print(hs);
-
+  pushOpen();
+  pushLCD();
  
 } 
 
 
+void pushLCD(){
+      lcd.setCursor(0, 0);
+      String hs="IP:"+String( WiFi.localIP().toString().c_str());
+      String ts="Temp: "+String((int)temp_f)+" C ";
+      lcd.setCursor(0, 0);
+      lcd.print(ts);
+      lcd.setCursor(0, 1);
+      lcd.print(hs);  
+}
+
 void gettemperatura() {
-       unsigned long currentMillis = millis();
+     unsigned long currentMillis = millis();
      if(currentMillis - previousMillis >= interval) {
         previousMillis = currentMillis;
         sensorDS18B20.requestTemperatures();
         temp_f =  sensorDS18B20.getTempCByIndex(0);
       }
-  }
+}
 
-
+void pushOpen(){
+   
+      if(val == 0){
+        digitalWrite(13, val);    
+        delay(tiempo_apertura);
+        val = 1;
+      }
+      else{
+       digitalWrite(13, val); 
+      }
+}
 
 void pushPWM() {
     
