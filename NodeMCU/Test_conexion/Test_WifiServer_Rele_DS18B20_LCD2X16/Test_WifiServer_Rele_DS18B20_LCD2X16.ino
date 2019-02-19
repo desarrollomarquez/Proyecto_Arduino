@@ -195,7 +195,7 @@ void pushMsg(String json){
 
 void pushPWM() {
 
-      while (start_pwm == 1){
+     if(start_pwm == 1){
            
            if(temp_hot <= 42){
               analogWrite(15, PWM_duty);
@@ -204,13 +204,12 @@ void pushPWM() {
             }  
         
       }
-       while (start_pwm == 0){
+      if(start_pwm == 0){
+           PWM_duty = 0;
            analogWrite(15, 0);
            delay(10);
-           break;
       }
       
-  
 }
 
 
