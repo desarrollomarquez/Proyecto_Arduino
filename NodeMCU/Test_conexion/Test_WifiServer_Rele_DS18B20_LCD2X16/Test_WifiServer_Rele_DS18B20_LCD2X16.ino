@@ -37,6 +37,8 @@ ESP8266WebServer server(80);
 float temp_hot, temp_cold;  // Values read from sensor
 int val = 1;
 int tiempo_apertura = 3000;
+int start_pwm;
+int PWM_duty = 0;
 String webString="";
 String lcdString="";    
 unsigned long previousMillis = 0;        // will store last temp was read
@@ -112,6 +114,19 @@ void setup(void)
     pushMsg(webString);
   });
 
+  server.on("/cook/1", [](){  
+    start_pwm = 1;
+    webString="Cocinar: "+String((int)start_pwm);
+    pushMsg(webString);
+  });
+
+  
+  server.on("/cook/0", [](){  
+    start_pwm = 0;
+    webString="No Cocinar: "+String((int)start_pwm);
+    pushMsg(webString);
+    
+  });
   
   server.on("/api", [](){  
     gettemperatura(); // read sensor
@@ -164,7 +179,7 @@ void pushOpen(){
         digitalWrite(13, val);    
         delay(tiempo_apertura);
         val = 1;
-        pushLCD("Compuerta Open");
+        pushLCD(" Compuerta Open ");
         
       }
       else{
@@ -179,19 +194,23 @@ void pushMsg(String json){
 }
 
 void pushPWM() {
-    
-    for (int PWM_duty = 0; PWM_duty < 1023; PWM_duty++) 
-    {
-      analogWrite(15, PWM_duty);
-      delay(1);
-    }
-    delay(500);
-    for (int PWM_duty = 1023; PWM_duty >= 0; PWM_duty--) 
-    {
-      analogWrite(15, PWM_duty);
-      delay(1);
-    }
-    delay(500);
-  }
+
+      while (start_pwm == 1){
+           
+           if(temp_hot <= 42){
+              analogWrite(15, PWM_duty);
+              delay(1000);    
+              PWM_duty++;
+            }  
+        
+      }
+       while (start_pwm == 0){
+           analogWrite(15, 0);
+           delay(10);
+           break;
+      }
+      
+  
+}
 
 
