@@ -26,6 +26,7 @@ Sensor Config
 #include <LiquidCrystal_I2C.h> //This library you can add via Include Library > Manage Library >
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <PID_v1.h>
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
@@ -38,6 +39,13 @@ float temp_hot, temp_cold;  // Values read from sensor
 int val = 1;
 int tiempo_apertura = 3000;
 int start_pwm;
+int valor_pwm;
+int salidaPWM = 15;  // salida de señal PWM
+//Defina las variables con las que nos conectaremos
+double temp,error,Setpoint,Output;
+//Especifique los enlaces y los parámetros de sintonía iniciales
+//double Kp=4, Ki=0.2, Kd=1;
+double Kp=1, Ki=0.05, Kd=0.25;
 int PWM_duty = 0;
 String webString="";
 String lcdString="";    
@@ -54,7 +62,8 @@ OneWire oneWireObjetoCold(pinDatosDQCold);
 DallasTemperature sensorDS18B20Hot(&oneWireObjetoHot);
 DallasTemperature sensorDS18B20Cold(&oneWireObjetoCold);
 
- 
+PID myPID(&temp, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
+
 void handle_root() {
   webString="Bienvenido API REST  server: Metodos  /open -> Abrir Compuerta; /temperaturas -> Mostrar Temperaturas Hot y Cold";
   pushMsg(webString);
@@ -68,10 +77,18 @@ void setup(void)
     
   // prepare GPIO16 - PWM
   pinMode(16, OUTPUT);
+  pinMode(salidaPWM, OUTPUT);
   pinMode(13, OUTPUT);
+
+  Setpoint = 100; // velocidad referencia
   
   sensorDS18B20Hot.begin(); // initialize temperature sensor
   sensorDS18B20Cold.begin(); 
+
+   //Activar el PID
+  myPID.SetSampleTime(20);
+  myPID.SetMode(AUTOMATIC);
+  myPID.SetOutputLimits(0,255);
   
   Serial.begin(115200);
   
@@ -195,21 +212,14 @@ void pushMsg(String json){
 
 void pushPWM() {
 
-     if(start_pwm == 1){
-           
-           if(temp_hot <= 42){
-              analogWrite(15, PWM_duty);
-              delay(1000);    
-              PWM_duty++;
-            }  
-        
-      }
-      if(start_pwm == 0){
-           PWM_duty = 0;
-           analogWrite(15, 0);
-           delay(10);
-      }
+  Setpoint = 100; // velocidad referencia
+  
+  temp=temp_hot;
+  myPID.Compute(); // calcula salida Output  ( 0-255)
+  analogWrite(salidaPWM,Output);
+  pushLCD(Output);
       
 }
+
 
 
