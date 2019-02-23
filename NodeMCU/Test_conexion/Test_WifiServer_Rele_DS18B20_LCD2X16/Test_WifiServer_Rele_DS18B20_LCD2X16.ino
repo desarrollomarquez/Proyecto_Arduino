@@ -218,7 +218,7 @@ void pushPWM() {
   myPID.Compute(); // calcula salida Output  ( 0-255)
   analogWrite(salidaPWM,Output);
   pushLCD(String((int)Output));
-  delay(100);
+  delay(1000);
       
 }
 
