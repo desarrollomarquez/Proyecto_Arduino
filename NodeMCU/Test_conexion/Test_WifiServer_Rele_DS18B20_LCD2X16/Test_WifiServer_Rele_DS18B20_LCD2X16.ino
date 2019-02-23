@@ -41,11 +41,12 @@ int tiempo_apertura = 3000;
 int start_pwm;
 int valor_pwm;
 int salidaPWM = 15;  // salida de señal PWM
-//Defina las variables con las que nos conectaremos
-double temp,error,Setpoint,Output;
-//Especifique los enlaces y los parámetros de sintonía iniciales
-//double Kp=4, Ki=0.2, Kd=1;
-double Kp=1, Ki=0.05, Kd=0.25;
+//Define Variables we'll be connecting to
+double Setpoint, Input, Output;
+
+//Define the aggressive and conservative Tuning Parameters
+double aggKp=4, aggKi=0.2, aggKd=1;
+double consKp=1, consKi=0.05, consKd=0.25;
 int PWM_duty = 0;
 String webString="";
 String lcdString="";    
@@ -61,8 +62,8 @@ OneWire oneWireObjetoHot(pinDatosDQHot);
 OneWire oneWireObjetoCold(pinDatosDQCold);
 DallasTemperature sensorDS18B20Hot(&oneWireObjetoHot);
 DallasTemperature sensorDS18B20Cold(&oneWireObjetoCold);
-
-PID myPID(&temp, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
+//Specify the links and initial tuning parameters
+PID myPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, DIRECT);
 
 void handle_root() {
   webString="Bienvenido API REST  server: Metodos  /open -> Abrir Compuerta; /temperaturas -> Mostrar Temperaturas Hot y Cold";
@@ -88,7 +89,7 @@ void setup(void)
    //Activar el PID
   myPID.SetSampleTime(20);
   myPID.SetMode(AUTOMATIC);
-  myPID.SetOutputLimits(0,255);
+  myPID.SetOutputLimits(0,1024);
   
   Serial.begin(115200);
   
@@ -213,12 +214,23 @@ void pushMsg(String json){
 void pushPWM() {
 
   Setpoint = 100; // velocidad referencia
+
+  double gap = abs(Setpoint-temp_hot); //distance away from setpoint
+  if(gap<60)
+  {  //we're close to setpoint, use conservative tuning parameters
+    myPID.SetTunings(consKp, consKi, consKd);
+  }
+  else
+  {
+     //we're far from setpoint, use aggressive tuning parameters
+     myPID.SetTunings(aggKp, aggKi, aggKd);
+  }
   
-  temp=temp_hot;
-  myPID.Compute(); // calcula salida Output  ( 0-255)
-  analogWrite(salidaPWM,Output);
-  pushLCD(String((int)Output));
+  myPID.Compute();
+  analogWrite(3,Output);
+   pushLCD(String((int)Output));
   delay(1000);
+
       
 }
 
