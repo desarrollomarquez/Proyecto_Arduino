@@ -216,6 +216,7 @@ void pushPWM() {
   Setpoint = 100; // velocidad referencia
 
   double gap = abs(Setpoint-temp_hot); //distance away from setpoint
+  
   if(gap<60)
   {  //we're close to setpoint, use conservative tuning parameters
     myPID.SetTunings(consKp, consKi, consKd);
@@ -227,8 +228,8 @@ void pushPWM() {
   }
   
   myPID.Compute();
-  analogWrite(3,Output);
-   pushLCD(String((int)Output));
+  analogWrite(salidaPWM,Output);
+  //pushLCD(String((int)Output));
   delay(1000);
 
       
