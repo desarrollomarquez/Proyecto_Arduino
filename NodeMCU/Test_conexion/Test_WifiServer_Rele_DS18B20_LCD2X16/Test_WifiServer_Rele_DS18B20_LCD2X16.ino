@@ -123,28 +123,28 @@ void setup(void)
   
   server.on("/temperaturas", [](){  
     gettemperatura();       // read sensor
-    webString="Temperatura_Hot: "+String((int)temp_hot)+" Grados"+"Temperatura_Cold: "+String((int)temp_cold)+" Grados";
-    pushMsg(webString);
+    String json="Temperatura_Hot: "+String((int)temp_hot)+" Grados"+"Temperatura_Cold: "+String((int)temp_cold)+" Grados";
+    pushMsg(json);
   });
 
  
   server.on("/open", [](){  
     val = 0;
-    webString="Compuerta Open: "+String((int)val);
-    pushMsg(webString);
+    String json="Compuerta Open: "+String((int)val);
+    pushMsg(json);
   });
 
   server.on("/cook/1", [](){  
     start_pwm = 1;
-    webString="Cocinar: "+String((int)start_pwm);
-    pushMsg(webString);
+    String json="Cocinar: "+String((int)start_pwm);
+    pushMsg(json);
   });
 
   
   server.on("/cook/0", [](){  
     start_pwm = 0;
-    webString="No Cocinar: "+String((int)start_pwm);
-    pushMsg(webString);
+    String json="No Cocinar: "+String((int)start_pwm);
+    pushMsg(json);
     
   });
   
@@ -200,6 +200,7 @@ void pushOpen(){
         delay(tiempo_apertura);
         val = 1;
         pushLCD(" Compuerta Open ");
+
         
       }
       else{
