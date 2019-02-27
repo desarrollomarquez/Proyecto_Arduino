@@ -31,8 +31,10 @@ Sensor Config
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 const char* host = "icaro";
-const char* ssid     = "Marquez Correa";
-const char* password = "Marquez8355196";
+//const char* ssid     = "Marquez Correa";
+//const char* password = "Marquez8355196";
+const char* ssid     = "pegajoso";
+const char* password = "pegajososiempre";
 
 ESP8266WebServer server(80);
 float temp_hot, temp_cold;  // Values read from sensor
@@ -66,7 +68,7 @@ DallasTemperature sensorDS18B20Cold(&oneWireObjetoCold);
 PID myPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, DIRECT);
 
 void handle_root() {
-  webString="Bienvenido API REST  server: Metodos  /open -> Abrir Compuerta; /temperaturas -> Mostrar Temperaturas Hot y Cold";
+  webString="Bienvenido API REST CSV  server: Metodos  /open -> Abrir Compuerta; /temperaturas -> Mostrar Temperaturas Hot y Cold; /cook/1 -> Cocinar - /cook/0 -> No cocinar";
   pushMsg(webString);
   delay(100);
 }
