@@ -33,27 +33,34 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 const char* host = "icaro";
 //const char* ssid     = "Marquez Correa";
 //const char* password = "Marquez8355196";
+
 const char* ssid     = "pegajoso";
 const char* password = "pegajososiempre";
 
 ESP8266WebServer server(80);
+
+
 float temp_hot, temp_cold;  // Values read from sensor
 int val = 1;
 int tiempo_apertura = 3000;
 int start_pwm;
 int valor_pwm;
 int salidaPWM = 15;  // salida de señal PWM
+
 //Define Variables we'll be connecting to
 double Setpoint, Input, Output;
 
-//Define the aggressive and conservative Tuning Parameters
+//Define the aggressive and conservative Tuning Parameters PID
 double aggKp=4, aggKi=0.2, aggKd=1;
 double consKp=1, consKi=0.05, consKd=0.25;
+
+//Mensajes del API y LCD
 int PWM_duty = 0;
 String webString="";
 String lcdString="";    
 unsigned long previousMillis = 0;        // will store last temp was read
 const long interval = 2000;              // interval at which to read sensor
+
 // Pin donde se conecta el bus 1-Wire
 const int pinDatosDQHot  = 0;
 const int pinDatosDQCold = 2;
