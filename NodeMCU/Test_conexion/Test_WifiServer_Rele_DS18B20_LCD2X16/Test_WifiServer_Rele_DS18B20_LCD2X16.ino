@@ -31,11 +31,11 @@ Sensor Config
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 const char* host = "icaro";
-const char* ssid     = "Marquez Correa";
-const char* password = "Marquez8355196";
+//const char* ssid     = "Marquez Correa";
+//const char* password = "Marquez8355196";
 
-//const char* ssid     = "pegajoso";
-//const char* password = "pegajososiempre";
+const char* ssid     = "pegajoso";
+const char* password = "pegajososiempre";
 
 ESP8266WebServer server(80);
 
@@ -74,6 +74,15 @@ DallasTemperature sensorDS18B20Cold(&oneWireObjetoCold);
 //Specify the links and initial tuning parameters
 PID myPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, DIRECT);
 
+
+IPAddress wifiIp(192, 168, 1, 111);
+IPAddress wifiNet(255, 255, 255, 0);
+IPAddress wifiGW(192, 168, 1, 111);
+IPAddress wifiDNS1(8, 8, 8, 8);
+IPAddress wifiDNS2(8, 8, 4, 4);
+
+
+
 void handle_root() {
   webString="Bienvenido API REST CSV  server: Metodos  /open -> Abrir Compuerta; /temperaturas -> Mostrar Temperaturas Hot y Cold; /cook/1 -> Cocinar - /cook/0 -> No cocinar";
   pushMsg(webString);
@@ -103,27 +112,28 @@ void setup(void)
   Serial.begin(115200);
   
   // Connect to WiFi networkRegístrese hoy mismo 
-  WiFi.mode(WIFI_AP);
-  WiFi.softAP(ssid, password);
   Serial.print("\n\r \n\rWorking to connect");
-  IPAddress local_ip(192, 168, 1, 1); //Asigna la dirección IP 
-  IPAddress gateway(192, 168, 1, 1); 
-  IPAddress subnet(255, 255, 255, 0);
-  WiFi.softAPConfig(local_ip, gateway, subnet);
-  Serial.println(ssid);
-  Serial.print("Access Point - Nueva direccion IP: ");
-  Serial.println(WiFi.softAPIP());
-  
+  WiFi.mode(WIFI_STA);
+  WiFi.softAP(wifiIp, wifiGW, wifiNet, wifiDNS1, wifiDNS2);
+  WiFi.begin(ssid, password);
+  // Wait for connection
+  uint8_t i = 0;
+  while (WiFi.status() != WL_CONNECTED && i++ < 30) {//wait 30 seconds
+    delay(500);
+  }
+  if(i == 31){
+    // Error al conectar
+    return;
+  }
+  // Conectado; imprimimos la IP local por Serial.
+  Serial.println(WiFi.localIP());
   // Wait for connection
   //while (WiFi.status() != WL_CONNECTED) {
     //delay(500);
     //Serial.print(".");
   //}
 
-  WiFiClient client = server.available(); 
-  if (!client) {
-    return;
-  }
+
   
   //Serial.println("");
   //Serial.println("Reading Server");
