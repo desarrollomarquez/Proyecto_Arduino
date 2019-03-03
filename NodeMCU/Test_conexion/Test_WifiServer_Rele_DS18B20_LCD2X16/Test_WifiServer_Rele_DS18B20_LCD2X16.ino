@@ -115,9 +115,14 @@ void setup(void)
   Serial.println(WiFi.softAPIP());
   
   // Wait for connection
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  //while (WiFi.status() != WL_CONNECTED) {
+    //delay(500);
+    //Serial.print(".");
+  //}
+
+  WiFiClient client = server.available(); 
+  if (!client) {
+    return;
   }
   
   //Serial.println("");
