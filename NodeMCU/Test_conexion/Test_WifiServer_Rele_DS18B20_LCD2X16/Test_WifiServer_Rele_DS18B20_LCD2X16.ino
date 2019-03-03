@@ -31,11 +31,11 @@ Sensor Config
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 const char* host = "icaro";
-//const char* ssid     = "Marquez Correa";
-//const char* password = "Marquez8355196";
+const char* ssid     = "Marquez Correa";
+const char* password = "Marquez8355196";
 
-const char* ssid     = "pegajoso";
-const char* password = "pegajososiempre";
+//const char* ssid     = "pegajoso";
+//const char* password = "pegajososiempre";
 
 ESP8266WebServer server(80);
 
@@ -103,9 +103,16 @@ void setup(void)
   Serial.begin(115200);
   
   // Connect to WiFi networkRegístrese hoy mismo 
-
-  WiFi.begin(ssid, password);
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(ssid, password);
   Serial.print("\n\r \n\rWorking to connect");
+  IPAddress local_ip(192, 168, 1, 1); //Asigna la dirección IP 
+  IPAddress gateway(192, 168, 1, 1); 
+  IPAddress subnet(255, 255, 255, 0);
+  WiFi.softAPConfig(local_ip, gateway, subnet);
+  Serial.println(ssid);
+  Serial.print("Access Point - Nueva direccion IP: ");
+  Serial.println(WiFi.softAPIP());
   
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
@@ -113,12 +120,12 @@ void setup(void)
     Serial.print(".");
   }
   
-  Serial.println("");
-  Serial.println("Reading Server");
-  Serial.print("Connected to ");
-  Serial.println(ssid);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  //Serial.println("");
+  //Serial.println("Reading Server");
+  //Serial.print("Connected to ");
+  //Serial.println(ssid);
+  //Serial.print("IP address: ");
+  //Serial.println(WiFi.localIP());
   
   
   
