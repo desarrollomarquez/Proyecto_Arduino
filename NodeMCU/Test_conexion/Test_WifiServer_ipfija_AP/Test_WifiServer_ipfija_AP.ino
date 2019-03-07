@@ -1,7 +1,7 @@
 #include <ESP8266WiFi.h> 
  
-const char* ssid     = "Marquez Correa";
-const char* password = "Marquez8355196";
+const char* ssid     = "pegajoso";
+const char* password = "pegajososiempre";
  
 IPAddress ip(192, 168, 1, 200);
 IPAddress gateway(192, 168, 1, 1);
