@@ -33,9 +33,9 @@ int salidaPWM = 15;  // salida de señal PWM
 double Setpoint, Input, Output;
 
 //Define the aggressive and conservative Tuning Parameters PID
-double aggKp=1, aggKi=0.2, aggKd=1;
-double consKp=4, consKi=0.05, consKd=0.25;
-
+double aggKp=4, aggKi=0.2, aggKd=1;
+//double consKp=1, consKi=0.05, consKd=0.25;
+double consKp=2, consKi=5, consKd=1;
 //Mensajes del API y LCD
 int PWM_duty = 0;
 String webString="";
@@ -208,18 +208,18 @@ void pushMsg(String json){
 
 void pushPWM() {
 
-  Setpoint = 60; // velocidad referencia
+  Setpoint = 70; // velocidad referencia
   Input = temp_hot;
   double gap = abs(Setpoint-Input); //distance away from setpoint
   
   if(gap < 35 )
   {  //we're close to setpoint, use conservative tuning parameters
-       myPID.SetTunings(aggKp, aggKi, aggKd);
+      myPID.SetTunings(consKp, consKi, consKd);
   }
   else
   {
      //we're far from setpoint, use aggressive tuning parameters
-     myPID.SetTunings(consKp, consKi, consKd);
+      myPID.SetTunings(aggKp, aggKi, aggKd);
   }
   
   myPID.Compute();
