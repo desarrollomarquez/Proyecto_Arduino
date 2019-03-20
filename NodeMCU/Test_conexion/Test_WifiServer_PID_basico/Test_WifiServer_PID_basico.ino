@@ -33,7 +33,7 @@ int salidaPWM = 15;  // salida de señal PWM
 double Setpoint, Input, Output;
 
 //Define the aggressive and conservative Tuning Parameters PID
-double aggKp=1, aggKi=2.5, aggKd=2;
+double aggKp=2, aggKi=-5, aggKd=-1;
 //double consKp=-1, consKi=-0.05, consKd=-0.25;
 double consKp=2, consKi=5, consKd=1;
 //Mensajes del API y LCD
