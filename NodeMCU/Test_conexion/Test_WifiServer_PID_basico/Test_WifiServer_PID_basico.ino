@@ -25,8 +25,9 @@ ESP8266WebServer server(80);
 float temp_hot, temp_cold;  // Values read from sensor
 int val = 1;
 int tiempo_apertura = 3000;
-int start_pwm;
-int valor_pwm;
+int start_pwm = 5;
+//int valor_pwm = 690;
+int valor_pwm = 0;
 int salidaPWM = 15;  // salida de señal PWM
 
 //Define Variables we'll be connecting to
@@ -208,27 +209,20 @@ void pushMsg(String json){
 
 void pushPWM() {
 
-  //Setpoint = 35; // velocidad referencia
-  //Input = temp_hot;
-  //double gap = abs(Setpoint-Input); //distance away from setpoint
+  analogWrite(salidaPWM,valor_pwm);
+    
+  valor_pwm = valor_pwm + start_pwm;
   
-  if(temp_hot < 35 )
-  {  //we're close to setpoint, use conservative tuning parameters
-      myPID.SetTunings(consKp, consKi, consKd);
+  if(temp_hot >= 32 )
+  {  
+    start_pwm= -start_pwm;
   }
-  else
-  {
-     //we're far from setpoint, use aggressive tuning parameters
-       analogWrite(salidaPWM,400);
-  }
-  
-  myPID.Compute();
-  analogWrite(salidaPWM,Output);
-  //pushLCD(String((int)Output));
+
   delay(1000);
-  lcdString ="Hot:"+String((int)temp_hot)+" "+"PWM:"+String((int)Output);
+  lcdString ="Hot:"+String((int)temp_hot)+" "+"PWM:"+String((int)valor_pwm);
   pushLCD(lcdString);
 
+  
       
 }
 
