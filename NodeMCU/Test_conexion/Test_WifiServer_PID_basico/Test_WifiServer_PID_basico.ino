@@ -209,16 +209,20 @@ void pushMsg(String json){
 
 void pushPWM() {
 
-  analogWrite(salidaPWM,valor_pwm);
-    
-  valor_pwm = valor_pwm + start_pwm;
-  
-  if(temp_hot >= 32 )
+  if(temp_hot >= 50 )  
   {  
-    start_pwm= -start_pwm;
+    valor_pwm = valor_pwm - start_pwm;
+    
   }
-
-  delay(1000);
+  else{
+    
+    valor_pwm = valor_pwm + start_pwm;  
+   
+   }
+  
+  analogWrite(salidaPWM,valor_pwm);
+ 
+  delay(2000);
   lcdString ="Hot:"+String((int)temp_hot)+" "+"PWM:"+String((int)valor_pwm);
   pushLCD(lcdString);
 
