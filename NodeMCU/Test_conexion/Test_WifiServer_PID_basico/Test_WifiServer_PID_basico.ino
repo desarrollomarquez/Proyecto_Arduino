@@ -26,8 +26,8 @@ float temp_hot, temp_cold;  // Values read from sensor
 int val = 1;
 int tiempo_apertura = 3000;
 int start_pwm = 5;
-//int valor_pwm = 690;
-int valor_pwm = 0;
+int valor_pwm = 341;
+//int valor_pwm = 0;
 int salidaPWM = 15;  // salida de señal PWM
 
 //Define Variables we'll be connecting to
@@ -209,16 +209,19 @@ void pushMsg(String json){
 
 void pushPWM() {
 
+  
+  
   if(temp_hot >= 50 )  
   {  
-    valor_pwm = valor_pwm - start_pwm;
+     valor_pwm = 0;
     
   }
-  else{
-    
-    valor_pwm = valor_pwm + start_pwm;  
-   
+  
+  if(temp_hot >= 45 and temp_hot < 50 )  
+   {  
+      valor_pwm = valor_pwm + start_pwm;
    }
+       
   
   analogWrite(salidaPWM,valor_pwm);
  
