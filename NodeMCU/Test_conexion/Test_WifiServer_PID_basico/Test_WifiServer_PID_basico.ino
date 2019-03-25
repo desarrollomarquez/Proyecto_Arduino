@@ -26,7 +26,7 @@ float temp_hot, temp_cold;  // Values read from sensor
 int val = 1;
 int tiempo_apertura = 3000;
 int start_pwm = 5;
-int valor_pwm = 341;
+int valor_pwm = 682;
 //int valor_pwm = 0;
 int salidaPWM = 15;  // salida de señal PWM
 
@@ -211,13 +211,13 @@ void pushPWM() {
 
   
   
-  if(temp_hot >= 50 )  
+  if(temp_hot >= 70 )  
   {  
      valor_pwm = 0;
     
   }
   
-  if(temp_hot >= 45 and temp_hot < 50 )  
+  if(temp_hot >= 68 and temp_hot < 70 )  
    {  
       valor_pwm = valor_pwm + start_pwm;
    }
