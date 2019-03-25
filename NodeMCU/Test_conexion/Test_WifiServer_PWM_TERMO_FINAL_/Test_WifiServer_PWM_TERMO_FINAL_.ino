@@ -186,6 +186,8 @@ void pushOpen(){
         digitalWrite(13, val);
         pushLCD("***Closed Gate***");
         delay(2000);
+        webString="{\"Closed\":"+String((int)val);
+        pushMsg(webString);
       }
   
 }
@@ -195,12 +197,12 @@ void pushPWM() {
   
   if(start_cook == 1){
     
-        if(temp_hot >= 70 )  
+        if(temp_hot >= 60 )  
         {  
            valor_pwm = 0;
           
         }
-        if(temp_hot >= 68 and temp_hot < 70 )  
+        if(temp_hot >= 56 and temp_hot < 60 )  
          {  
             valor_pwm = valor_pwm + start_pwm;
          }
@@ -209,11 +211,13 @@ void pushPWM() {
         lcdString =" Cooking in "+String((int)temp_hot)+"C ..";
         pushLCD(lcdString);
         delay(1000);
+        webString="{\"Cook\":"+String((int)start_cook);
+        pushMsg(webString);
   }
   else{
     
         analogWrite(salidaPWM,0);
-        webString="Do not Cook: "+String((int)start_cook);
+        webString="{\"Cook\":"+String((int)start_cook);
         pushMsg(webString);
   }
   
