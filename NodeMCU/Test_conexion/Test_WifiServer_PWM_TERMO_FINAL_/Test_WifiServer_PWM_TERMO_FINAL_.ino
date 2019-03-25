@@ -102,26 +102,26 @@ void setup(void)
  
   server.on("/open", [](){  
     val = 0;
-    String json="Open Gate: "+String((int)val);
+    String json="{\"Open\":"+String((int)val)+" }";
     pushMsg(json);
   });
   
   server.on("/closed", [](){  
     val = 1;
-    String json="Closed Gate: "+String((int)val);
+    String json="{\"Closed\":"+String((int)val)+" }";
     pushMsg(json);
   });
   
 
   server.on("/cook/1", [](){  
     start_cook = 1;
-    String json="Cook: "+String((int)start_cook);
+    String json="{\"Cook\":"+String((int)start_cook)+" }";
     pushMsg(json);
   });
 
   server.on("/cook/0", [](){  
     start_cook = 0;
-    String json="Do not Cook: "+String((int)start_cook);
+    String json="{\"Cook\":"+String((int)start_cook)+" }";
     pushMsg(json);
     
   });
@@ -186,8 +186,6 @@ void pushOpen(){
         digitalWrite(13, val);
         pushLCD("***Closed Gate***");
         delay(2000);
-        webString="{\"Closed\":"+String((int)val);
-        pushMsg(webString);
       }
   
 }
@@ -211,14 +209,9 @@ void pushPWM() {
         lcdString =" Cooking in "+String((int)temp_hot)+"C ..";
         pushLCD(lcdString);
         delay(1000);
-        webString="{\"Cook\":"+String((int)start_cook);
-        pushMsg(webString);
   }
   else{
-    
         analogWrite(salidaPWM,0);
-        webString="{\"Cook\":"+String((int)start_cook);
-        pushMsg(webString);
   }
   
 }
