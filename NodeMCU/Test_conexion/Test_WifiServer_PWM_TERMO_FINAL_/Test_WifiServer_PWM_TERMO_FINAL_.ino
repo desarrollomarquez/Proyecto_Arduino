@@ -51,7 +51,7 @@ DallasTemperature sensorDS18B20Cold(&oneWireObjetoCold);
 
 
 void handle_root() {
-  webString="Welcome API REST CSV  server: Metodos  /open -> Abrir Compuerta; /temperature -> Mostrar Temperaturas Hot y Cold; /cook/1 -> Cocinar - /cook/0 -> No cocinar";
+  webString="Welcome API REST CSV  server: Metodos  /open -> Abrir Compuerta; /hottemp ; /coldtemp -> Mostrar Temperaturas Hot y Cold; /cook/1 -> Cocinar - /cook/0 -> No cocinar";
   pushMsg(webString);
   delay(100);
 }
@@ -126,12 +126,20 @@ void setup(void)
     
   });
   
-  server.on("/temperature", [](){  
+  server.on("/hottemp", [](){  
     gettemperatura(); // read sensor
-    String json="{\"Temperature_Hot\":"+String((int)temp_hot)+"}, {\"Temperature_Cold\":"+String((int)temp_cold)+"}";
+    String json="{\"Temperature_Hot\":"+String((int)temp_hot)+"}";
     Serial.println(json);
     pushMsg(json);
   });
+
+  server.on("/coldtemp", [](){  
+    gettemperatura(); // read sensor
+    String json="{\"Temperature_Cold\":"+String((int)temp_cold)+"}";
+    Serial.println(json);
+    pushMsg(json);
+  });
+
   
   server.begin();
   Serial.println("HTTP server started");
