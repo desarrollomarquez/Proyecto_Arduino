@@ -12,11 +12,11 @@
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 const char* host = "icaro";
-const char* ssid     = "Marquez Correa";
-const char* password = "Marquez8355196";
+//const char* ssid     = "Marquez Correa";
+//const char* password = "Marquez8355196";
 
-//const char* ssid     = "pegajoso";
-//const char* password = "pegajososiempre";
+const char* ssid     = "pegajoso";
+const char* password = "pegajososiempre";
 
 ESP8266WebServer server(80);
 
