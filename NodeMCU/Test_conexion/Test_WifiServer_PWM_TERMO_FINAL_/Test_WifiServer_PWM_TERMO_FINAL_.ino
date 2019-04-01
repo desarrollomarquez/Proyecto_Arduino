@@ -75,7 +75,7 @@ void setup(void)
   // Connect to WiFi networkRegístrese hoy mismo 
   Serial.print("\n\r \n\rWorking to connect");
   WiFi.begin(ssid, password);
-  // Wait for connection
+
 
   // Conectado; imprimimos la IP local por Serial.
   Serial.println(WiFi.localIP());
@@ -221,6 +221,7 @@ void pushPWM() {
         pushLCD(lcdString);
         delay(1000);
   }
+  
   else{
         analogWrite(salidaPWM,0);
   }
