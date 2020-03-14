@@ -1,0 +1,30 @@
+
+
+API CSV
+
+Request: -> http://192.168.0.102/
+Result: -> Welcome API REST CSV  server
+
+Metodo:  /temperature -> Mostrar Temperaturas Hot y Cold
+
+	Request: -> http://192.168.0.102/temperature
+	Result:  -> {"Temperature_Hot":19}, {"Temperature_Cold":19}
+
+Metodo: /open -> Abrir Compuerta
+
+	Request: -> http://192.168.0.102/open
+	Result:  -> {"Open":0 }
+
+Metodo: /cook/1 -> Cocinar
+
+	Request: -> http://192.168.0.102/cook/1
+	Result:  -> {"Cook":1 }
+
+Metodo: /cook/0 -> No cocinar
+	
+	Request: -> http://192.168.0.102/cook/0
+	Result:  -> {"Cook":0 }
+
+Nota//: Recordar que la ip mostrada en el ejemplo es dada por el router local, esta puede variar mas lo metodos no.
+
+
