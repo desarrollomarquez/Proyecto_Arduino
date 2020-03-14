@@ -17,21 +17,24 @@ const int numberOfVerticalDisplays = 1;
  
 Max72xxPanel matrix = Max72xxPanel(pinCS, numberOfHorizontalDisplays, numberOfVerticalDisplays);
 
-const int wait = 70; // Velocidad a la que realiza el scroll 
-const int spacer = 1;
-const int width = 5 + spacer; // Ancho de la fuente a 5 pixeles
+
 
 int addr = 0;
+String msgin = "";
 boolean s = false;
 boolean f = false;
+boolean p = false;
 
 SoftwareSerial BT1(4,2); // RX, TX
+
+
  
 void setup() {
  
  
  Serial.begin(9600);
  BT1.begin(9600);
+ 
  matrix.setIntensity(4); // Ajustar el brillo entre 0 y 15
  // Ajustar segun las necesidades
  matrix.setPosition(0, 0, 0); // El primer display esta en <0, 0>
@@ -57,11 +60,11 @@ void setup() {
  
 }
 
-String save_message (){
+String save_message(){
         String msg = "";
         for (int i = 0; i < EEPROM.length(); i++) {
               if(EEPROM.read(i) != 35){
-               msg += char(EEPROM.read(i));
+                msg += char(EEPROM.read(i));
               }
         }
         return msg;        
@@ -74,39 +77,51 @@ void delete_message(){
         Serial.println("Se ha borrado la eeprom");
 }
 
-void print_matrix(String cadena){  
-               int n = random(0,1);             
-               for (int i = 0; i < width * cadena.length() + matrix.width() - 1 - spacer; i++) {
-                 matrix.fillScreen(LOW);
-                 int letter = i / width;
-                 int x = (matrix.width() - 1) - i % width;
-                 int y = (matrix.height() - 8) / 2; // Centrar el texto
+String print_matrix(String cadena){  
+          int wait = 70; // Velocidad a la que realiza el scroll 
+          int spacer = 1;
+          int width = 5 + spacer; // Ancho de la fuente a 5 pixeles
+               for (int i = 0; i < 6 * cadena.length() + matrix.width() - 2; i++) {
                  
-                 while (x + width - spacer >= 0 && letter >= 0) {
-                   if (letter < cadena.length()) {
-                    matrix.drawChar(x, y, cadena[letter], HIGH, LOW, 1);
-                   }
+                 matrix.fillScreen(LOW);
+                 int letter = i / 6;
+                 int x = (matrix.width() - 1) - i % 6;
+                 int y = (matrix.height() - 8) / 2; // Centrar el texto
+    
+                 while (x + 5 >= 0 && letter >= 0) {
+                   matrix.drawChar(x, y, cadena[letter], HIGH, LOW, 1);
                    letter--;
                    x -= width;
                  }
                  matrix.write(); // Muestra loscaracteres
-                 delay(wait);
+                 delay(wait);  
+                 
                }
+               return "pintando..";
+                              
 }
 
 
 void loop() {
-       
-        while (BT1.available()){  
-              EEPROM.update(addr, BT1.read());
-              if(EEPROM.read(addr) == 35){
-                print_matrix(save_message());
+       while (BT1.available()){
+        
+             EEPROM.update(addr, BT1.read());
+             if (EEPROM.read(addr) == 35){                
+                Serial.println("Pintar...");
+                Serial.println(msgin);
+                Serial.print(print_matrix(msgin));
+                delete_message();
+                msgin = "";
               }
-              addr++;
-        }
- 
+              else{
+                msgin += char(EEPROM.read(addr));
+                addr++;
+              }
+        
+        }     
 }
 
 
+  
 
   
